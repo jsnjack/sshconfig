@@ -5,7 +5,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/mikkeloscar/sshconfig/badge.svg)](https://coveralls.io/github/mikkeloscar/sshconfig)
 
 Parses the config usually found in `~/.ssh/config` or `/etc/ssh/ssh_config`.
-Only `Host`, `HostName`, `User`, `Port`, `IdentityFile`, `HostKeyAlgorithms`, `ProxyCommand`, `ProxyJump`, `LocalForward`, `RemoteForward` and `DynamicForward` is implemented at
+Only `Host`, `HostName`, `User`, `Port`, `IdentityFile`, `HostKeyAlgorithms`, `ProxyCommand`, `ProxyJump`, `LocalForward`, `RemoteForward`, `DynamicForward`, `Ciphers` and `MACs` is implemented at
 this point.
 
 [OpenSSH Reference.][openssh_man]
@@ -24,7 +24,7 @@ import (
 )
 
 func main() {
-    hosts, err := ParseSSHConfig("/path/to/ssh_config")
+    hosts, err := sshconfig.Parse("/path/to/ssh_config")
     if err != nil {
         fmt.Println(err)
     }

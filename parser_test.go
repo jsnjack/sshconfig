@@ -24,6 +24,9 @@ func TestParsing(t *testing.T) {
   HostKeyAlgorithms ssh-dss
   # comment
   IdentityFile ~/.ssh/company
+  Ciphers aes256-ctr,aes128-cbc
+  MACs hmac-md5,hmac-sha2-256
+
 
 Host face
   HostName facebook.com
@@ -109,7 +112,15 @@ func TestIgnoreKeyword(t *testing.T) {
 Host face
   HostName facebook.com
   User mark
-  Port 22`
+  Port 22
+
+Host other
+  HostName example.org
+  User root
+  Port 22
+  Ciphers 3des-cbc,blowfish-cbc,cast128-cbc
+  MACs hmac-sha1,hmac-sha1-96
+  `
 
 	expected := []*SSHHost{
 		{
@@ -129,6 +140,14 @@ Host face
 			HostKeyAlgorithms: "",
 			ProxyCommand:      "",
 			IdentityFile:      "",
+		},
+		{
+			Host:     []string{"other"},
+			User:     "root",
+			Port:     22,
+			HostName: "example.org",
+			Ciphers:  []string{"3des-cbc", "blowfish-cbc", "cast128-cbc"},
+			MACs:     []string{"hmac-sha1", "hmac-sha1-96"},
 		},
 	}
 	actual, err := parse(config, "~/.ssh/config")
@@ -671,6 +690,51 @@ func TestParseFSNonExitentFile(t *testing.T) {
 		t.Errorf("Did not get expected error: %#v, got %#v", expectedErr, err.Error())
 	}
 
+}
+
+func TestHostlessFile(t *testing.T) {
+	config := `Include ./b.conf
+	Include ./a.conf
+	VisualHostKey yes`
+
+	configB := `Host google
+	  HostName google.se
+	  User goog
+	  Port 2222`
+	configA := `Host face
+	  HostName facebook.com
+	  User mark
+	  Port 22`
+
+	tmpdir := t.TempDir()
+
+	f, err := os.Create(tmpdir + "/b.conf")
+	if err != nil {
+		t.Errorf("unable to create file: %s", err.Error())
+	}
+	defer f.Close()
+
+	_, err = f.WriteString(configB)
+	if err != nil {
+		t.Errorf("unable to write to file: %s", err.Error())
+	}
+
+	f, err = os.Create(tmpdir + "/a.conf")
+	if err != nil {
+		t.Errorf("unable to create file: %s", err.Error())
+	}
+	defer f.Close()
+
+	_, err = f.WriteString(configA)
+	if err != nil {
+		t.Errorf("unable to write to file: %s", err.Error())
+	}
+
+	_, err = parse(config, tmpdir+"/config")
+
+	if err != nil {
+		t.Errorf("unable to parse config: %s", err.Error())
+	}
 }
 
 func TestProxyJump(t *testing.T) {
