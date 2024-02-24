@@ -52,6 +52,7 @@ const (
 	itemRemoteForward
 	itemDynamicForward
 	itemInclude
+	itemProxyJump
 )
 
 // variables
@@ -67,6 +68,7 @@ var variables = map[string]itemType{
 	"remoteforward":     itemRemoteForward,
 	"dynamicforward":    itemDynamicForward,
 	"include":           itemInclude,
+	"proxyjump":         itemProxyJump,
 }
 
 const eof = -1

@@ -89,7 +89,7 @@ func TestMultipleHost(t *testing.T) {
 func TestTrailingSpace(t *testing.T) {
 	// in the config below, the first line is "Host google \n"
 	config := `
-Host googlespace 
+Host googlespace
     HostName google.com
 `
 	parse(config, "~/.ssh/config")
@@ -671,4 +671,31 @@ func TestParseFSNonExitentFile(t *testing.T) {
 		t.Errorf("Did not get expected error: %#v, got %#v", expectedErr, err.Error())
 	}
 
+}
+
+func TestProxyJump(t *testing.T) {
+	config := `Host jump
+  Hostname jump.example.com
+  User mark
+  Port 22
+  ProxyJump john@bouncer`
+
+	expected := []*SSHHost{
+		{
+			Host:              []string{"jump"},
+			User:              "mark",
+			Port:              22,
+			HostName:          "jump.example.com",
+			HostKeyAlgorithms: "",
+			ProxyCommand:      "",
+			IdentityFile:      "",
+			ProxyJump:         "john@bouncer",
+		},
+	}
+	actual, err := parse(config, "~/.ssh/config")
+	if err != nil {
+		t.Errorf("unexpected error parsing config: %s", err.Error())
+	}
+
+	compare(t, expected, actual)
 }

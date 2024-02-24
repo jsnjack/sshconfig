@@ -19,6 +19,7 @@ type SSHHost struct {
 	User              string
 	Port              int
 	ProxyCommand      string
+	ProxyJump         string
 	HostKeyAlgorithms string
 	IdentityFile      string
 	LocalForwards     []Forward
@@ -186,6 +187,12 @@ Loop:
 				return nil, fmt.Errorf(next.val)
 			}
 			sshHost.ProxyCommand = next.val
+		case itemProxyJump:
+			next = lexer.nextItem()
+			if next.typ != itemValue {
+				return nil, fmt.Errorf(next.val)
+			}
+			sshHost.ProxyJump = next.val
 		case itemHostKeyAlgorithms:
 			next = lexer.nextItem()
 			if next.typ != itemValue {
